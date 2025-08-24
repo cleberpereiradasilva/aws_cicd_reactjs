@@ -3,7 +3,7 @@ name: Deploy Vite + React to S3
 on:
   push:
     branches:
-      - main
+      - main # Trigger deployment on push to main branch
 
 jobs:
   deploy:
@@ -17,13 +17,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm" # Cache dependencies based on package-lock.json
+          cache: "yarn" # Enable caching for Yarn based on yarn.lock
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build project
-        run: npm run build
+        run: yarn build
 
       - name: Deploy to S3
         run: aws s3 sync dist s3://${{ secrets.S3_BUCKET }} --delete
