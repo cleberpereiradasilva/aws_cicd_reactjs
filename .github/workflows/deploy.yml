@@ -1,4 +1,4 @@
-name: Deploy Vite + React to S3
+name: Deploy Vite + React to S3 with Backup
 
 on:
   push:
@@ -25,17 +25,21 @@ jobs:
       - name: Build project
         run: yarn build
 
-      - name: Deploy to timestamp folder
+      - name: Deploy to S3 backup and main bucket
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_BUCKET_BK: ${{ secrets.S3_BUCKET_BK }}
         run: |
+          # Timestamp for backup version
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          echo "Deploying to folder: $TIMESTAMP"
-          aws s3 sync dist s3://$S3_BUCKET/$TIMESTAMP --delete
+          echo "Deploying backup to bucket: $S3_BUCKET_BK/$TIMESTAMP"
 
-          # Atualiza a pasta 'latest' apontando para o deploy atual
-          aws s3 rm s3://$S3_BUCKET/latest --recursive
-          aws s3 cp s3://$S3_BUCKET/$TIMESTAMP s3://$S3_BUCKET/latest --recursive
+          # 1️⃣ Upload build to backup bucket with timestamp
+          aws s3 sync dist s3://$S3_BUCKET_BK/$TIMESTAMP --delete
+
+          # 2️⃣ Update active version in the main bucket
+          echo "Deploying active version to main bucket: $S3_BUCKET"
+          aws s3 sync dist s3://$S3_BUCKET/ --delete
