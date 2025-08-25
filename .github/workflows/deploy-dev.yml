@@ -36,3 +36,15 @@ jobs:
           # 2️⃣ Update active version in the dev bucket
           echo "Deploying active version to dev bucket: $S3_BUCKET_DEV"
           aws s3 sync dist s3://$S3_BUCKET_DEV/ --delete
+
+      - name: Invalidate CloudFront distribution
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          CLOUDFRONT_DIST_ID: ${{ secrets.CLOUDFRONT_DIST_ID_DEV }}
+        run: |
+          echo "Creating CloudFront invalidation for distribution: $CLOUDFRONT_DIST_ID"
+          aws cloudfront create-invalidation \
+            --distribution-id $CLOUDFRONT_DIST_ID \
+            --paths "/*"
