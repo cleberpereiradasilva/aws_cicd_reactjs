@@ -3,7 +3,7 @@ name: Deploy Vite + React to S3 with Backup
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   deploy:
@@ -30,16 +30,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          S3_BUCKET_BK: ${{ secrets.S3_BUCKET_BK }}
+          S3_BUCKET_DEV: ${{ secrets.S3_BUCKET_DEV }}
         run: |
-          # Timestamp for backup version
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          echo "Deploying backup to bucket: $S3_BUCKET_BK/$TIMESTAMP"
 
-          # 1️⃣ Upload build to backup bucket with timestamp
-          aws s3 sync dist s3://$S3_BUCKET_BK/$TIMESTAMP --delete
-
-          # 2️⃣ Update active version in the main bucket
-          echo "Deploying active version to main bucket: $S3_BUCKET"
-          aws s3 sync dist s3://$S3_BUCKET/ --delete
+          # 2️⃣ Update active version in the dev bucket
+          echo "Deploying active version to dev bucket: $S3_BUCKET_DEV"
+          aws s3 sync dist s3://$S3_BUCKET_DEV/ --delete
