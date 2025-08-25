@@ -30,7 +30,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          S3_BUCKET_PRD: ${{ secrets.S3_BUCKET_PRD }}
+          S3_BUCKET_PROD: ${{ secrets.S3_BUCKET_PROD }}
           S3_BUCKET_BK: ${{ secrets.S3_BUCKET_BK }}
         run: |
           # Timestamp for backup version
@@ -41,5 +41,5 @@ jobs:
           aws s3 sync dist s3://$S3_BUCKET_BK/$TIMESTAMP --delete
 
           # 2️⃣ Update active version in the main bucket
-          echo "Deploying active version to main bucket: $S3_BUCKET_PRD"
-          aws s3 sync dist s3://$S3_BUCKET_PRD/ --delete
+          echo "Deploying active version to main bucket: $S3_BUCKET_PROD"
+          aws s3 sync dist s3://$S3_BUCKET_PROD/ --delete
