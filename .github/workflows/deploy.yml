@@ -3,7 +3,7 @@ name: Deploy Vite + React to S3
 on:
   push:
     branches:
-      - main # Trigger deployment on push to main branch
+      - main
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "yarn" # Enable caching for Yarn based on yarn.lock
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -25,9 +25,17 @@ jobs:
       - name: Build project
         run: yarn build
 
-      - name: Deploy to S3
-        run: aws s3 sync dist s3://${{ secrets.S3_BUCKET }} --delete
+      - name: Deploy to timestamp folder
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          echo "Deploying to folder: $TIMESTAMP"
+          aws s3 sync dist s3://$S3_BUCKET/$TIMESTAMP --delete
+
+          # Atualiza a pasta 'latest' apontando para o deploy atual
+          aws s3 rm s3://$S3_BUCKET/latest --recursive
+          aws s3 cp s3://$S3_BUCKET/$TIMESTAMP s3://$S3_BUCKET/latest --recursive
