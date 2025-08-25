@@ -1,0 +1,18 @@
+name: List Production Backups
+
+on:
+  workflow_dispatch:
+
+jobs:
+  list_backups:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List all production backups
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          PROD_BACKUP_BUCKET: ${{ secrets.S3_BUCKET_BK }}
+        run: |
+          echo "Available backups in $PROD_BACKUP_BUCKET:"
+          aws s3 ls s3://$PROD_BACKUP_BUCKET/ | awk '{print $2}'

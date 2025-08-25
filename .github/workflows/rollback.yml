@@ -8,28 +8,7 @@ on:
         required: true
 
 jobs:
-  list_backups:
-    runs-on: ubuntu-latest
-    outputs:
-      latest_backup: ${{ steps.list.outputs.latest }}
-
-    steps:
-      - name: List all production backups
-        id: list
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          PROD_BACKUP_BUCKET: ${{ secrets.S3_BUCKET_BK }}
-        run: |
-          echo "Available backups in $PROD_BACKUP_BUCKET:"
-          aws s3 ls s3://$PROD_BACKUP_BUCKET/ | awk '{print $2}'
-          LATEST=$(aws s3 ls s3://$PROD_BACKUP_BUCKET/ | sort | tail -n 2 | awk '{print $2}')
-          echo "Latest backup: $LATEST"
-          echo "::set-output name=latest::$LATEST"
-
   rollback:
-    needs: list_backups
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
