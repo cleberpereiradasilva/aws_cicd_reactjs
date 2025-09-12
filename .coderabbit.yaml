@@ -7,4 +7,8 @@ reviews:
     - pr_title
     - pr_description
     - lint
-  auto_review: true
+
+  auto_review:
+    enabled: true
+    on_open: true
+    on_push: true
