@@ -1,0 +1,10 @@
+version: 1
+api_key: ${CODERABBIT_API_KEY}
+
+reviews:
+  enabled: true
+  rules:
+    - pr_title
+    - pr_description
+    - lint
+  auto_review: true
